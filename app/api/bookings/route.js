@@ -9,6 +9,20 @@ const pool = new Pool({
   port: 5432,
 });
 
+export async function GET(request) {
+  try {
+    const { rows } = await pool.query(`
+      SELECT bookings.id, bookings.user_name, bookings.booking_time, courses.name AS course_name
+      FROM bookings
+      JOIN courses ON bookings.course_id = courses.id
+    `);
+    return NextResponse.json(rows);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ message: "获取预定列表失败" }, { status: 500 });
+  }
+}
+
 export async function POST(request) {
   const { course_id, user_name } = await request.json();
   try {
