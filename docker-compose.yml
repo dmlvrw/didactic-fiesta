@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 services:
   web:
@@ -8,13 +8,11 @@ services:
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgres://postgres:password@db:5432/golfcourse
-
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
   db:
     image: postgres:14
+    restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: golfcourse
+      - POSTGRES_PASSWORD: postgres
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
