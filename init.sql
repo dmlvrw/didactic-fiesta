@@ -1,9 +1,6 @@
-CREATE TABLE bookings (
+CREATE TABLE courses (
   id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  date DATE NOT NULL
+  name VARCHAR(100) NOT NULL
 );
 
-INSERT INTO bookings (name, date) VALUES
-('Alice', '2023-10-01'),
-('Bob', '2023-10-02');
+INSERT INTO courses (name) VALUES ('阳光高尔夫俱乐部'), ('月光高尔夫度假村');
