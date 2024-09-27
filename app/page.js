@@ -5,11 +5,16 @@ export default function Home() {
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [userName, setUserName] = useState("");
+  const [bookings, setBookings] = useState([]);
 
   useEffect(() => {
     fetch("/api/courses")
       .then((res) => res.json())
       .then((data) => setCourses(data));
+
+    fetch("/api/bookings")
+      .then((res) => res.json())
+      .then((data) => setBookings(data));
   }, []);
 
   const handleBooking = async () => {
@@ -21,8 +26,25 @@ export default function Home() {
     });
     if (res.ok) {
       alert("预定成功！");
+      // 更新预定列表
+      fetch("/api/bookings")
+        .then((res) => res.json())
+        .then((data) => setBookings(data));
     } else {
       alert("预定失败！");
+    }
+  };
+
+  const handleCancelBooking = async (bookingId) => {
+    const res = await fetch(`/api/bookings/${bookingId}`, {
+      method: "DELETE",
+    });
+    if (res.ok) {
+      alert("取消预定成功！");
+      // 更新预定列表
+      setBookings(bookings.filter((booking) => booking.id !== bookingId));
+    } else {
+      alert("取消预定失败！");
     }
   };
 
@@ -51,6 +73,21 @@ export default function Home() {
           <button onClick={handleBooking}>确认预定</button>
         </div>
       )}
+
+      <h2>现有预定列表</h2>
+      <ul>
+        {bookings.map((booking) => (
+          <li key={booking.id}>
+            <span>
+              {booking.user_name} 预定了 {booking.course_name}
+            </span>
+            <button onClick={() => handleCancelBooking(booking.id)}>
+              取消预定
+            </button>
+          </li>
+        ))}
+      </ul>
+
       <style jsx>{`
         .container {
           font-family: Arial, sans-serif;
@@ -60,7 +97,8 @@ export default function Home() {
           text-align: center;
         }
 
-        h1 {
+        h1,
+        h2 {
           color: #333;
         }
 
