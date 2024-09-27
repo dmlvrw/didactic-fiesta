@@ -1,20 +1,26 @@
-version: "3"
+version: "3.8"
 
 services:
-  web:
-    build: .
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: golf
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+
+  app:
+    image: node:18-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: sh -c "npm install && npm run dev"
     ports:
       - "3000:3000"
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgres://postgres:password@db:5432/golfcourse
-
-  db:
-    image: postgres:14
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: golfcourse
-    volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      DATABASE_URL: postgres://postgres:postgres@db:5432/golf
