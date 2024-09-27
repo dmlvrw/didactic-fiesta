@@ -6,16 +6,31 @@ export default function Home() {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [userName, setUserName] = useState("");
   const [bookings, setBookings] = useState([]);
+  const [coursePage, setCoursePage] = useState(1);
+  const [courseTotalPages, setCourseTotalPages] = useState(1);
+  const [bookingPage, setBookingPage] = useState(1);
+  const [bookingTotalPages, setBookingTotalPages] = useState(1);
+
+  const coursePageSize = 5;
+  const bookingPageSize = 5;
 
   useEffect(() => {
-    fetch("/api/courses")
+    fetch(`/api/courses?page=${coursePage}&pageSize=${coursePageSize}`)
       .then((res) => res.json())
-      .then((data) => setCourses(data));
+      .then((data) => {
+        setCourses(data.courses);
+        setCourseTotalPages(data.totalPages);
+      });
+  }, [coursePage]);
 
-    fetch("/api/bookings")
+  useEffect(() => {
+    fetch(`/api/bookings?page=${bookingPage}&pageSize=${bookingPageSize}`)
       .then((res) => res.json())
-      .then((data) => setBookings(data));
-  }, []);
+      .then((data) => {
+        setBookings(data.bookings);
+        setBookingTotalPages(data.totalPages);
+      });
+  }, [bookingPage]);
 
   const handleBooking = async () => {
     if (!selectedCourse || !userName) return;
@@ -26,10 +41,12 @@ export default function Home() {
     });
     if (res.ok) {
       alert("预定成功！");
-      // 更新预定列表
-      fetch("/api/bookings")
+      fetch(`/api/bookings?page=${bookingPage}&pageSize=${bookingPageSize}`)
         .then((res) => res.json())
-        .then((data) => setBookings(data));
+        .then((data) => {
+          setBookings(data.bookings);
+          setBookingTotalPages(data.totalPages);
+        });
     } else {
       alert("预定失败！");
     }
@@ -41,7 +58,6 @@ export default function Home() {
     });
     if (res.ok) {
       alert("取消预定成功！");
-      // 更新预定列表
       setBookings(bookings.filter((booking) => booking.id !== bookingId));
     } else {
       alert("取消预定失败！");
@@ -59,6 +75,23 @@ export default function Home() {
           </li>
         ))}
       </ul>
+      <div className="pagination">
+        <button
+          onClick={() => setCoursePage(coursePage - 1)}
+          disabled={coursePage === 1}
+        >
+          上一页
+        </button>
+        <span>
+          {coursePage} / {courseTotalPages}
+        </span>
+        <button
+          onClick={() => setCoursePage(coursePage + 1)}
+          disabled={coursePage === courseTotalPages}
+        >
+          下一页
+        </button>
+      </div>
 
       {selectedCourse && (
         <div className="booking-form">
@@ -87,6 +120,23 @@ export default function Home() {
           </li>
         ))}
       </ul>
+      <div className="pagination">
+        <button
+          onClick={() => setBookingPage(bookingPage - 1)}
+          disabled={bookingPage === 1}
+        >
+          上一页
+        </button>
+        <span>
+          {bookingPage} / {bookingTotalPages}
+        </span>
+        <button
+          onClick={() => setBookingPage(bookingPage + 1)}
+          disabled={bookingPage === bookingTotalPages}
+        >
+          下一页
+        </button>
+      </div>
 
       <style jsx>{`
         .container {
@@ -140,6 +190,18 @@ export default function Home() {
 
         .booking-form {
           margin-top: 20px;
+        }
+
+        .pagination {
+          margin: 10px 0;
+        }
+
+        .pagination button {
+          margin: 0 5px;
+        }
+
+        .pagination span {
+          margin: 0 10px;
         }
       `}</style>
     </div>
